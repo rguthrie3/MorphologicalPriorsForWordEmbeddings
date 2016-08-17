@@ -1,3 +1,9 @@
+# Morphological Priors for Probabilistic Neural Word Embeddings
+=================================
+Implementation of [Morphological Priors for Probabilistic Neural Word Embeddings](https://arxiv.org/abs/1608.01056).
+
+![model_demo](./assets/arch.png)
+
 # VarEmbed in Blocks
 This is the implementation for the following paper, to appear at EMNLP 2016:
 Morphological Priors for Probabilistic Neural Word Embeddings.  Parminder Bhatia, Robert Guthrie, Jacob Eisenstein.
@@ -14,6 +20,12 @@ LSTM code modified from https://github.com/johnarevalo/blocks-char-rnn.git.
 [documentation](http://fuel.readthedocs.org/) for more information.
 
 * Install the Morfessor Python package.
+
+Results
+-----
+
+
+![histogram](./assets/results.png)
 
 ## Usage
 

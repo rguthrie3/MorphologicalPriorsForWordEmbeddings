@@ -34,8 +34,8 @@ class MorphoPrior:
 
     def compute_cost(self, morpho_idxs, masks, word_idxs):
         """
-        Compute the cost by taking a softmax over the morpheme embedding,
-        the word embedding, then computing the KL divergence of them
+        Lookup the morpheme embeddings, and sum them to create the prior
+            morpheme representation
         :param morpho_idxs A 3D tensor where morpho_idxs[i,j] is a word,
             and the 3rd dimension is the morpheme indicies that make up
             the word.

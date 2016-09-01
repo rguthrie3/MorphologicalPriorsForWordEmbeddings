@@ -59,11 +59,11 @@ class MorphoPrior:
         It simply uses that log(sigmoid(x)) = - log(1 + e^-x)
         """
         sig_x = T.nnet.sigmoid(x)
-        exp_x       = T.exp(-x)
-        exp_y       = T.exp(-y)
-        one_p_exp_x = exp_x + 1
-        one_p_exp_y = exp_y + 1
-        return (sig_x * (T.log(one_p_exp_y) - T.log(one_p_exp_x)) + (1 - sig_x) * (T.log(exp_y) - T.log(exp_x))).mean()
+        exp_x = T.exp(x)
+        exp_y = T.exp(y)
+        exp_neg_x = T.exp(-x)
+        exp_neg_y = T.exp(-y)
+        return (sig_x * (T.log1p(exp_neg_y) - T.log1p(exp_neg_x)) + (1 - sig_x) * (T.log1p(exp_y) - T.log1p(exp_x))).mean()
 
 
     @property

@@ -26,7 +26,6 @@ class MorphoPrior:
 
         self.morpho_embed_lookup = LookupTable(length=morpho_vocab_size,
                 dim=hidden_size, name="morpho_embeddings")
-        self.softmax = NDimensionalSoftmax(name="morpho_softmax")
         initialize(self.morpho_embed_lookup, 0.8)
 
         self.cost = self.compute_cost(morpho_idxs, masks, word_idxs)
@@ -47,6 +46,7 @@ class MorphoPrior:
         output_shape = [word_idxs.shape[i] for i in range(word_idxs.ndim)] + [self.hidden_size]
         word_level_reps = self.word_embed_lookup[word_idxs.flatten()].reshape(output_shape)
         morpho_level_reps = (self.morpho_embed_lookup.apply(morpho_idxs) * masks).sum(axis=2)
+
         return self.kl_div(word_level_reps, morpho_level_reps)
 
     def kl_div(self, x, y):

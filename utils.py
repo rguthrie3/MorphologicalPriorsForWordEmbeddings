@@ -1,6 +1,7 @@
 import sys
 import h5py
 import yaml
+import codecs
 from fuel.datasets import H5PYDataset
 from fuel.streams import DataStream
 from fuel.schemes import SequentialScheme, ShuffledScheme
@@ -68,7 +69,7 @@ def get_stream(hdf5_file, which_set, batch_size=None):
 
 
 def read_pretrained_vectors(filename, word_to_ix):
-    with open(filename, "r") as f:
+    with codecs.open(filename, "r", 'utf-8') as f:
         lines = f.readlines()
     word_to_embed = { line.split()[0]: map(lambda x: float(x), line.split()[1:]) for line in lines }
     sorted_word_indices = sorted(word_to_ix.items(), key=lambda x: x[1])

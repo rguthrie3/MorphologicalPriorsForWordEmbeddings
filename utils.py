@@ -7,7 +7,8 @@ from fuel.streams import DataStream
 from fuel.schemes import SequentialScheme, ShuffledScheme
 from fuel.transformers import Mapping
 from blocks.extensions import saveload, predicates
-from blocks.extensions.training import TrackTheBest
+from blocks.extensions.training import TrackTheBest, SharedVariableModifier
+from blocks.extensions.predicates import OnLogRecord
 from blocks import initialization
 from blocks import main_loop
 from fuel.utils import do_not_pickle_attributes
@@ -27,6 +28,19 @@ class MainLoop(main_loop.MainLoop):
     def load(self):
         self.extensions = []
 
+class DecayIfIncrease(SharedVariableModifier):
+
+    def __init__(self, learning_rate, log_record, decay_factor=1e-1, **kwargs):
+        self.log_record = log_record
+        self.decay_factor = decay_factor
+        self.current_log_value = np.inf
+        super(DecayIfIncrease, self).__init__(parameter=learning_rate, function=None, num_args=2, **kwargs)
+        self.add_condition(['after_epoch'], OnLogRecord(self.log_record))
+
+    def function(self, _, current_lr):
+        prev, self.current_log_value = self.current_log_value, self.main_loop.log.current_row[self.log_record]
+        return np.cast[theano.config.floatX](current_lr * self.decay_factor) if prev - self.current_log_value < 0 else \
+                np.cast[theano.config.floatX](current_lr)
 
 def transpose_stream(data):
     ret = [0]*4

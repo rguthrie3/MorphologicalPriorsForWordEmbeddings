@@ -31,6 +31,9 @@ class MorphoPrior:
         self.cost = self.compute_cost(morpho_idxs, masks, word_idxs)
         self.cost.name = "morpho_cost"
 
+        self.norm = self.morpho_embed_lookup.W.norm(2)
+        self.norm.name = "morpho_embed_norm"
+
     def compute_cost(self, morpho_idxs, masks, word_idxs):
         """
         Lookup the morpheme embeddings, and sum them to create the prior
@@ -73,3 +76,7 @@ class MorphoPrior:
     @property
     def embeddings(self):
         return self.morpho_embed_lookup
+
+    @property
+    def morpheme_vector_norm(self):
+        return self.norm

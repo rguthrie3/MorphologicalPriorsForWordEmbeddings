@@ -2,6 +2,7 @@ import theano
 import numpy as np
 import cPickle
 import argparse
+import sys
 from theano import tensor
 from blocks.model import Model
 from blocks.graph import ComputationGraph, apply_dropout
@@ -11,13 +12,14 @@ from blocks.extensions import FinishAfter, Timing, Printing, saveload
 from blocks.extensions.training import SharedVariableModifier
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
 from blocks.monitoring import aggregation
-from utils import get_metadata, get_stream, track_best, MainLoop, read_pretrained_vectors
+from utils import get_metadata, get_stream, track_best, MainLoop, read_pretrained_vectors, DecayIfIncrease
 from model.neural_lm_model import NeuralLM
 from model.morpho_model import MorphoPrior
 from config import config
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -38,6 +40,7 @@ if __name__ == "__main__":
     dev_stream = get_stream(hdf5_file, 'dev', batch_size)
     logging.debug('loaded data')
     print "Number of words:", vocab_size
+    print "Number of morphemes:", morpho_vocab_size
     # Save the word and morpheme indices to disk
     D = { }
     D["word_to_ix"] = word_to_ix
@@ -79,15 +82,18 @@ if __name__ == "__main__":
     logging.debug('made learning algo')
 
     # Extensions (stuff to track during training, serializing the training loop to disk, etc.)
-    monitored_vars = [cost]
+    monitored_vars = [cost, morpho_prior.morpheme_vector_norm, morpho_prior.cost]
     dev_monitor = DataStreamMonitoring(variables=[cost], after_epoch=True,
                                        before_first_epoch=True, data_stream=dev_stream, prefix="dev")
     train_monitor = TrainingDataMonitoring(variables=monitored_vars, after_batch=True,
                                            before_first_epoch=True, prefix='tra')
+    #decay_if_increase = DecayIfIncrease(step_rules[0].learning_rate, "dev_cost", after_epoch=True)
+
     extensions = [dev_monitor, train_monitor, Timing(), Printing(after_batch=True),
                   FinishAfter(after_n_epochs=nepochs),
                   saveload.Load(load_path),
                   saveload.Checkpoint(last_path),
+                  #decay_if_increase,
                   ] + track_best('dev_cost', save_path)
     logging.debug('made extensions')
 

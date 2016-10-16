@@ -2,13 +2,13 @@
 # and replacing them with an UNK token in the output
 import argparse
 from collections import Counter
+import re
 
 def preprocess(x):
-    if x.isdigit() or (x.split(".")[0].isdigit() and x.split(".")[1].isdigit()) or (x.split(",")[0].isdigit() and x.split(",")[1].isdigit()):
+    if re.match("[0-9]*\.?[0-9][0-9,]+", x) is not None:
         return "NUM"
     else:
-        #return x.lower()
-        return x
+        return x.lower()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

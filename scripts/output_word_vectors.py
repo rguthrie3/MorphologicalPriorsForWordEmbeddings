@@ -1,6 +1,7 @@
 import cPickle
 import argparse
 import morfessor
+import codecs
 import numpy as np
 
 def output_word_vector(word, embed, outfile):
@@ -27,14 +28,14 @@ morpho_embeddings = D["morpheme_embeddings"]
 morfessor_model = morfessor.MorfessorIO().read_binary_model_file(options.morfessor_model)
 
 # Read in the output vocab
-with open(options.vocab, "r") as f:
+with codecs.open(options.vocab, "r", "utf-8") as f:
     output_words = set([ line.strip() for line in f ])
 
 # If we get an unknown morpheme, just use 0
 np.append(morpho_embeddings, np.zeros((1,morpho_embeddings.shape[1])), axis=0)
 
 
-with open("word_and_morpho_embeds.txt", "w") as outfile:
+with codecs.open("word_and_morpho_embeds.txt", "w", "utf-8") as outfile:
     in_vocab = 0
     out_vocab = 0
     total = len(output_words)
@@ -55,7 +56,7 @@ with open("word_and_morpho_embeds.txt", "w") as outfile:
                 morphologically_complex_words_count += 1
             embed = np.array([morpho_embeddings[i] for i in morpheme_indices]).sum(axis=0)
             output_word_vector(word, embed, outfile)
-        print "Total Number of wordvectors.org words:", total
+        print "Total Number of words:", total
         print "Total Number of Morphologically Complex Words (num morphemes > 1):", morphologically_complex_words_count
         print "Total Number of Words for which we have at least 1 morpheme embedding:", have_atleast_1_morpho_count
         print "Total Number of Words for which we have all morpheme embeddings:", have_all_morphos_count
